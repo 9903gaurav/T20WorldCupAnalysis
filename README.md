@@ -57,4 +57,42 @@ Pre-Processing
 
 
 Power BI    
+    Team Selection Criteria
+        Overview
+            - The team should be able to score at least 180 runs on an average
+            - They should be to defend 150 runs on an average
+        Criteria
+            
+            Opener (2 Player, 1 Left Hand, 1 Right Hand)
+                Batting Average - (> 30)
+                Strike Rate - (> 140)
+                Innings Batted - (> 3)
+                Boundary % - (> 50)
+                Batting Position - (< 4)
+            
+            Middle Order (3 Player)
+                Batting Average - (> 40)
+                Strike Rate - (> 125)
+                Innings Batted - (> 3)
+                Avg. Balls Faced - (> 20)
+                Batting Position - (> 2)
+
+            Finisher / Lower Order (2 Player)
+                Batting Average - (> 25)
+                Strike Rate - (> 130)
+                Innings Batted > 3
+                Avg. Balls - (> 1)2
+                Batting Position - (> 4)
+                Innings Bowled - (> 1)
+            
+            ALL-ROUNDERS / LOWER ORDER
+                Batting Average Average runs scored in an innings - (> 15)
+                Strike Rate No of runs scored per 100 balls - (> 140)
+                Innings Batted - (> 2)
+                Batting Position - (> 4)
+                Innings Bowled - (> 2)
+                Bowling Economy - (< 7)
+                Bowling Strike Rate - (< 20)
+
+            
 
