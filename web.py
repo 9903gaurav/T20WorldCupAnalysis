@@ -11,7 +11,7 @@ match_links = []
 # To Store All The Player Links
 player_links = []
 
-driver = webdriver.Chrome()
+driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver')
 
 driver.get(url)
 
