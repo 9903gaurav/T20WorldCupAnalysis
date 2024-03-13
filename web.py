@@ -5,6 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import re
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+
+service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
 
 options = Options()
 options.add_argument('--headless')  # Run Chrome in headless mode
@@ -12,7 +15,7 @@ options.add_argument('--no-sandbox')  # Disable sandbox mode
 options.add_argument('--disable-gpu')  # Disable GPU acceleration
 options.add_argument('--disable-dev-shm-usage')  # Disable /dev/shm usage
 
-driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver', options=options)
+driver = webdriver.Chrome(service=service, options=options)
 
 # To Store All The Match Links
 match_links = []
