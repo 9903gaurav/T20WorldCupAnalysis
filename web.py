@@ -5,13 +5,20 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import re
+from selenium.webdriver.chrome.options import Options
+
+options = Options()
+options.add_argument('--headless')  # Run Chrome in headless mode
+options.add_argument('--no-sandbox')  # Disable sandbox mode
+options.add_argument('--disable-gpu')  # Disable GPU acceleration
+options.add_argument('--disable-dev-shm-usage')  # Disable /dev/shm usage
 
 # To Store All The Match Links
 match_links = []
 # To Store All The Player Links
 player_links = []
 
-driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver')
+driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver', options=options)
 
 driver.get(url)
 
