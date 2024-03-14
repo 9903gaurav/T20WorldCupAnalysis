@@ -60,6 +60,7 @@ def scrape_match(data):
     options.add_argument('--no-sandbox')  # Disable sandbox mode
     options.add_argument('--disable-gpu')  # Disable GPU acceleration
     options.add_argument('--disable-dev-shm-usage')  # Disable /dev/shm usage
+    options.add_argument('window-size=1280,800')
 
     with webdriver.Chrome(service=service, options=options) as driver:
         driver.get(data[3])
@@ -72,7 +73,7 @@ def scrape_match(data):
                 if j < 1:
                     flag = 1
                     bat_pos = 0
-                    for i,tr in enumerate(table.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-table-row-compact-bottom ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-border-none ')]")):
+                    for i,tr in enumerate(table.find_elements(By.XPATH, ".//tr[not(contains(@class, 'ds-hidden'))]")):
                         if tr.text != "":
                             if (i > 0):
                                 if (flag):
@@ -81,7 +82,7 @@ def scrape_match(data):
                                     else:
                                         temp = []
                                         bat_pos += 1
-                                        for k,td in enumerate(tr.find_elements(By.TAG_NAME, 'td')):
+                                        for k,td in enumerate(tr.find_elements(By.TAG_NAME,  "td")):
                                             if td.find_elements(By.XPATH, ".//a"):
                                                 player_links.append(td.find_element(By.XPATH, ".//a").get_attribute("href"))
                                             if k == 0:
@@ -90,7 +91,6 @@ def scrape_match(data):
                                                 temp.append("not_out") if td.text == "not out" else temp.append("out")
                                             else:
                                                 temp.append(td.text)
-                                        print("Batting")
                                         batting.append(dict(zip(batting_headers,[data[0] + " vs " + data[1],active_team,bat_pos,temp[0],temp[2],temp[3],temp[5],temp[6],temp[7],temp[1],data[2]])))
                     flag = 1
                 else:
@@ -108,8 +108,7 @@ def scrape_match(data):
                                         temp.append(td.text)
                                 if active_team == data[0]: temp_active = data[1] 
                                 elif active_team == data[1]: temp_active = data[0] 
-                                print("Bowling")
-                                bowling.append(dict(zip(batting_headers, [data[0] + " vs " + data[1],temp_active,temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7],temp[8],temp[9],temp[10],data[2]])))
+                                bowling.append(dict(zip(bowling_headers, [data[0] + " vs " + data[1],temp_active,temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7],temp[8],temp[9],temp[10],data[2]])))
         driver.quit()
 
 def scrape_playerData(url):
@@ -123,6 +122,7 @@ def scrape_playerData(url):
     options.add_argument('--no-sandbox')  # Disable sandbox mode
     options.add_argument('--disable-gpu')  # Disable GPU acceleration
     options.add_argument('--disable-dev-shm-usage')  # Disable /dev/shm usage
+    options.add_argument('window-size=1280,800')
 
     with webdriver.Chrome(service=service, options=options) as driver:
         driver.get(url)
@@ -136,11 +136,11 @@ def scrape_playerData(url):
         playingRole = ""
         description = ""
 
-        if driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-xl ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-medium ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-block ')]"):
-            name = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-xl ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-medium ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-block ')]").text
+        if driver.find_element(By.XPATH, ".//h1[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-l ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ')]"):
+            name = driver.find_element(By.XPATH, ".//h1[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-l ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ')]").text
 
-        if driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ')]"):
-            country = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ')]").text
+        if driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ')]"):
+            country = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ')]").text
 
         if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ci-player-bio-content ') ]"):
             for des in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ci-player-bio-content ') ]"):
@@ -152,9 +152,9 @@ def scrape_playerData(url):
             for ps in p:
                 cols = ps.find_elements(By.TAG_NAME, 'div')
                 for col in cols:
-                    if col.find_elements(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]"):
-                        text = col.find_element(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]").text
-                        content = col.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-xs ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo ')]").text
+                    if col.find_elements(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-m ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]"):
+                        text = col.find_element(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-m ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]").text
+                        content = col.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo ')]").text
                         if (text == "BATTING STYLE"):
                             battingStyle = content
                         elif (text == "BOWLING STYLE"):
@@ -163,13 +163,13 @@ def scrape_playerData(url):
                             playingRole = content
 
 
-        if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-w-40 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-flex ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-justify-end ')]"):
-            for img in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-w-40 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-flex ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-justify-end ')]"):
+        if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-ml-auto ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-w-48 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-h-48 ')]"):
+            for img in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-ml-auto ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-w-48 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-h-48 ')]"):
                 tem = "//img[@alt and contains(concat(' ', normalize-space(@alt), ' '), \"{}\")]".format(name)
                 image = img.find_element(By.XPATH, tem).get_attribute("src")
         
         print(name, country, image, battingStyle, bowlingStyle, playingRole)
-        player.append(dict(zip(batting_headers,[name, country, image, battingStyle, bowlingStyle, playingRole, description])))
+        player.append(dict(zip(player_headers,[name, country, image, battingStyle, bowlingStyle, playingRole, description])))
         
         driver.quit()
 
