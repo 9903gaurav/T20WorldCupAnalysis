@@ -9,6 +9,9 @@ import json
 url = 'https://stats.espncricinfo.com/ci/engine/records/team/match_results.html?id=14450;type=tournament'
 match_summary_path = 'dataset_json/match_summary.json'
 
+match_links = []
+player_links = []
+
 def scarpe_matchSummary(url, filename):
     
     global match_links
