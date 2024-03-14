@@ -21,7 +21,7 @@ def scarpe_matchSummary(url, filename):
     options.add_argument('--disable-gpu')  # Disable GPU acceleration
     options.add_argument('--disable-dev-shm-usage')  # Disable /dev/shm usage
 
-    with webdriver.Chrome(options=options) as driver:
+    with webdriver.Chrome(service=service, options=options) as driver:
         driver.get(url)
         WebDriverWait(driver, 10).until( lambda x: x.find_element(By.TAG_NAME, 'table'))
         headers = [header.text for header in driver.find_elements(By.TAG_NAME, 'td')]
