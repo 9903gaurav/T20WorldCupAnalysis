@@ -90,7 +90,7 @@ def scrape_match(data):
                                                 temp.append("not_out") if td.text == "not out" else temp.append("out")
                                             else:
                                                 temp.append(td.text)
-                                        # print(data[0] + " vs " + data[1],active_team,bat_pos,temp[0],temp[2],temp[3],temp[5],temp[6],temp[7],temp[1],data[2])
+                                        print("Batting")
                                         batting.append(dict(zip(batting_headers,[data[0] + " vs " + data[1],active_team,bat_pos,temp[0],temp[2],temp[3],temp[5],temp[6],temp[7],temp[1],data[2]])))
                     flag = 1
                 else:
@@ -108,7 +108,7 @@ def scrape_match(data):
                                         temp.append(td.text)
                                 if active_team == data[0]: temp_active = data[1] 
                                 elif active_team == data[1]: temp_active = data[0] 
-                                # print(data[0] + " vs " + data[1],temp_active,temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7],temp[8],temp[9],temp[10],data[2])
+                                print("Bowling")
                                 bowling.append(dict(zip(batting_headers, [data[0] + " vs " + data[1],temp_active,temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7],temp[8],temp[9],temp[10],data[2]])))
         driver.quit()
 
