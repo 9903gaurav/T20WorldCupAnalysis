@@ -19,10 +19,12 @@ player_headers = ["name","team","image","battingStyle","bowlingStyle","playingRo
 batting = []
 bowling = []
 player = []
+matchSummary = []
 
 def scarpe_matchSummary(url):
     
     global match_links
+    global matchSummary
 
     service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
 
@@ -36,27 +38,13 @@ def scarpe_matchSummary(url):
         driver.get(url)
         WebDriverWait(driver, 10).until( lambda x: x.find_element(By.TAG_NAME, 'table'))
         headers = [header.text for header in driver.find_elements(By.TAG_NAME, 'td')]
-        table_data = []
         for row in driver.find_elements(By.TAG_NAME, 'tr')[1:]:
             cols = row.find_elements(By.TAG_NAME, 'td')
             row_data = [data.text for data in row.find_elements(By.TAG_NAME, 'td')]
-            table_data.append(dict(zip(headers, row_data)))
+            matchSummary.append(dict(zip(headers, row_data)))
             if cols[6].find_elements(By.XPATH, ".//a"):
                 match_links.append([cols[0].text, cols[1].text, cols[6].text, cols[6].find_element(By.XPATH, ".//a").get_attribute("href")])
         driver.quit()
-
-    # Convert table data to JSON string
-    json_data = json.dumps(table_data, indent=4)
-
-    # Convert JSON string to bytes
-    json_bytes = json_data.encode('utf-8')
-
-    # Create BytesIO object to represent the file
-    file_obj = BytesIO(json_bytes)
-
-    # Upload file to S3
-    s3 = boto3.client('s3')
-    s3.upload_fileobj(file_obj, "t20worldcupdata", "staged/staged_match_summary.json")
 
 def scrape_match(data):
     global batting_headers
@@ -148,28 +136,31 @@ def scrape_playerData(url):
         playingRole = ""
         description = ""
 
-        name = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-xl ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-medium ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-block ')]").text
+        if driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-xl ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-medium ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-block ')]"):
+            name = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-xl ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-medium ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-block ')]").text
 
-        country = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ')]").text
+        if driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ')]"):
+            country = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ')]").text
 
         if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ci-player-bio-content ') ]"):
             for des in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ci-player-bio-content ') ]"):
                 description = des.find_element(By.TAG_NAME, 'p').text
         
-        p = driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-grid ') and contains(concat(' ', normalize-space(@class), ' '), ' lg:ds-grid-cols-3 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-grid-cols-2 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-gap-4 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-mb-8 ')]")
+        if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-grid ') and contains(concat(' ', normalize-space(@class), ' '), ' lg:ds-grid-cols-3 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-grid-cols-2 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-gap-4 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-mb-8 ')]"):
+            p = driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-grid ') and contains(concat(' ', normalize-space(@class), ' '), ' lg:ds-grid-cols-3 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-grid-cols-2 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-gap-4 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-mb-8 ')]")
 
-        for ps in p:
-            cols = ps.find_elements(By.TAG_NAME, 'div')
-            for col in cols:
-                if col.find_elements(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]"):
-                    text = col.find_element(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]").text
-                    content = col.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-xs ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo ')]").text
-                    if (text == "BATTING STYLE"):
-                        battingStyle = content
-                    elif (text == "BOWLING STYLE"):
-                        bowlingStyle = content
-                    elif (text == "PLAYING ROLE"):
-                        playingRole = content
+            for ps in p:
+                cols = ps.find_elements(By.TAG_NAME, 'div')
+                for col in cols:
+                    if col.find_elements(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]"):
+                        text = col.find_element(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]").text
+                        content = col.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-xs ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo ')]").text
+                        if (text == "BATTING STYLE"):
+                            battingStyle = content
+                        elif (text == "BOWLING STYLE"):
+                            bowlingStyle = content
+                        elif (text == "PLAYING ROLE"):
+                            playingRole = content
 
 
         if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-w-40 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-flex ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-justify-end ')]"):
@@ -177,14 +168,22 @@ def scrape_playerData(url):
                 tem = "//img[@alt and contains(concat(' ', normalize-space(@alt), ' '), \"{}\")]".format(name)
                 image = img.find_element(By.XPATH, tem).get_attribute("src")
         
-        print(name, country, image, battingStyle, bowlingStyle, playingRole, description)
+        print(name, country, image, battingStyle, bowlingStyle, playingRole)
         player.append(dict(zip(batting_headers,[name, country, image, battingStyle, bowlingStyle, playingRole, description])))
         
         driver.quit()
 
 
+s3 = boto3.client('s3')
+
 print("Match Summary Started")
 scarpe_matchSummary(url)
+
+json_data_matchSummary = json.dumps(matchSummary, indent=4)
+json_bytes_matchSummary = json_data_matchSummary.encode('utf-8')
+file_obj_matchSummary = BytesIO(json_bytes_matchSummary)
+s3.upload_fileobj(file_obj_matchSummary, "t20worldcupdata", "staged/staged_match_summary.json")
+
 print("Match Summary Completed")
 
 
@@ -198,8 +197,7 @@ json_bytes_batting = json_data_batting.encode('utf-8')
 
 file_obj_batting = BytesIO(json_bytes_batting)
 
-s3_batting = boto3.client('s3')
-s3_batting.upload_fileobj(file_obj_batting, "t20worldcupdata", "staged/staged_match_batting_summary.json")
+s3.upload_fileobj(file_obj_batting, "t20worldcupdata", "staged/staged_match_batting_summary.json")
 
 json_data_bowling = json.dumps(bowling, indent=4)
 
@@ -207,24 +205,29 @@ json_bytes_bowling = json_data_bowling.encode('utf-8')
 
 file_obj_bowling = BytesIO(json_bytes_bowling)
 
-s3_bowling = boto3.client('s3')
-s3_bowling.upload_fileobj(file_obj_bowling, "t20worldcupdata", "staged/staged_match_bowling_summary.json")
+s3.upload_fileobj(file_obj_bowling, "t20worldcupdata", "staged/staged_match_bowling_summary.json")
+
 
 print("Match Detail Completed")
 
+
 print("Player Data Started")
 player_links = list(set(player_links))
-
 for link in  player_links:
     scrape_playerData(link)
+print("Player Data Completed")
 
+
+# Convert table data to JSON string
 json_data_player = json.dumps(player, indent=4)
 
+
+# Convert JSON string to bytes
 json_bytes_player = json_data_player.encode('utf-8')
 
+
+# Create BytesIO object to represent the file
 file_obj_player = BytesIO(json_bytes_player)
 
-s3_player = boto3.client('s3')
-s3_player.upload_fileobj(file_obj_player, "t20worldcupdata", "staged/staged_players.json")
-
-print("Player Data Completed")
+# Upload file to S3
+s3.upload_fileobj(file_obj_player, "t20worldcupdata", "staged/staged_players.json")
