@@ -48,7 +48,7 @@ def scarpe_matchSummary(url, filename):
     file_obj = BytesIO(json_bytes)
 
     # Upload file to S3
-    s3 = boto3.client('s3', region_name="ap-south-1")
-    s3.upload_fileobj(file_obj, "t20worldcupdata", "staged/stagged_match_summary.json")
+    s3 = boto3.client('s3')
+    s3.upload_fileobj(file_obj, "t20worldcupdata", "staged/staged_match_summary.json")
 
 scarpe_matchSummary(url, match_summary_path)
