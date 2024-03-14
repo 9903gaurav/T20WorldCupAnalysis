@@ -148,9 +148,9 @@ def scrape_playerData(url):
         playingRole = ""
         description = ""
 
-        name = driver.find_element(By.XPATH, ".//h1[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-l ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ')]").text
+        name = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-xl ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-medium ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-block ')]").text
 
-        country = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ')]").text
+        country = driver.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-comfortable-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-raw-white ')]").text
 
         if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ci-player-bio-content ') ]"):
             for des in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ci-player-bio-content ') ]"):
@@ -161,9 +161,9 @@ def scrape_playerData(url):
         for ps in p:
             cols = ps.find_elements(By.TAG_NAME, 'div')
             for col in cols:
-                if col.find_elements(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-m ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]"):
-                    text = col.find_element(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-m ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]").text
-                    content = col.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo ')]").text
+                if col.find_elements(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]"):
+                    text = col.find_element(By.XPATH, ".//p[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-tight-s ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-regular ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-uppercase ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo-mid3 ')]").text
+                    content = col.find_element(By.XPATH, ".//span[contains(concat(' ', normalize-space(@class), ' '), ' ds-text-title-xs ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-font-bold ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-text-typo ')]").text
                     if (text == "BATTING STYLE"):
                         battingStyle = content
                     elif (text == "BOWLING STYLE"):
@@ -172,8 +172,8 @@ def scrape_playerData(url):
                         playingRole = content
 
 
-        if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-ml-auto ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-w-48 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-h-48 ')]"):
-            for img in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-ml-auto ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-w-48 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-h-48 ')]"):
+        if driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-w-40 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-flex ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-justify-end ')]"):
+            for img in driver.find_elements(By.XPATH, ".//div[contains(concat(' ', normalize-space(@class), ' '), ' ds-w-40 ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-flex ') and contains(concat(' ', normalize-space(@class), ' '), ' ds-justify-end ')]"):
                 tem = "//img[@alt and contains(concat(' ', normalize-space(@alt), ' '), \"{}\")]".format(name)
                 image = img.find_element(By.XPATH, tem).get_attribute("src")
         
@@ -192,23 +192,24 @@ print("Match Detail Started")
 for i, data in enumerate(match_links):
         scrape_match(data)
 
-json_data = json.dumps(batting, indent=4)
+json_data_batting = json.dumps(batting, indent=4)
 
-json_bytes = json_data.encode('utf-8')
+json_bytes_batting = json_data_batting.encode('utf-8')
 
-file_obj = BytesIO(json_bytes)
+file_obj_batting = BytesIO(json_bytes_batting)
 
-s3 = boto3.client('s3')
-s3.upload_fileobj(file_obj, "t20worldcupdata", "staged/staged_match_batting_summary.json")
+s3_batting = boto3.client('s3')
+s3_batting.upload_fileobj(file_obj_batting, "t20worldcupdata", "staged/staged_match_batting_summary.json")
 
-json_data = json.dumps(bowling, indent=4)
+json_data_bowling = json.dumps(bowling, indent=4)
 
-json_bytes = json_data.encode('utf-8')
+json_bytes_bowling = json_data_bowling.encode('utf-8')
 
-file_obj = BytesIO(json_bytes)
+file_obj_bowling = BytesIO(json_bytes_bowling)
 
-s3 = boto3.client('s3')
-s3.upload_fileobj(file_obj, "t20worldcupdata", "staged/staged_match_bowling_summary.json")
+s3_bowling = boto3.client('s3')
+s3_bowling.upload_fileobj(file_obj_bowling, "t20worldcupdata", "staged/staged_match_bowling_summary.json")
+
 print("Match Detail Completed")
 
 print("Player Data Started")
@@ -217,13 +218,13 @@ player_links = list(set(player_links))
 for link in  player_links:
     scrape_playerData(link)
 
-json_data = json.dumps(player, indent=4)
+json_data_player = json.dumps(player, indent=4)
 
-json_bytes = json_data.encode('utf-8')
+json_bytes_player = json_data_player.encode('utf-8')
 
-file_obj = BytesIO(json_bytes)
+file_obj_player = BytesIO(json_bytes_player)
 
-s3 = boto3.client('s3')
-s3.upload_fileobj(file_obj, "t20worldcupdata", "staged/staged_players.json")
+s3_player = boto3.client('s3')
+s3_player.upload_fileobj(file_obj_player, "t20worldcupdata", "staged/staged_players.json")
 
 print("Player Data Completed")
