@@ -110,6 +110,7 @@ def scrape_match(data):
                         if tr.text != "": 
                             if (i > 0):
                                 temp = []
+                                temp_active = ""
                                 for k,td in enumerate(tr.find_elements(By.TAG_NAME, 'td')):
                                     if td.find_elements(By.XPATH, ".//a"):
                                         player_links.append(td.find_element(By.XPATH, ".//a").get_attribute("href"))
