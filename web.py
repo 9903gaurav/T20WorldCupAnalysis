@@ -27,13 +27,13 @@ wait = WebDriverWait(driver, 10)
 
 rows = driver.find_elements(By.TAG_NAME, 'tr')
 
-for row in rows:
+for i, row in enumerate(rows):
     cols = row.find_elements(By.TAG_NAME, 'td')
     if cols:
         data = [col.text for col in cols]
         if cols[6].find_elements(By.XPATH, ".//a"):
             match_links.append([cols[0].text, cols[1].text, cols[6].text, cols[6].find_element(By.XPATH, ".//a").get_attribute("href")])
-
-print(match_links)
+            print(i)
+            print([cols[0].text, cols[1].text, cols[6].text, cols[6].find_element(By.XPATH, ".//a").get_attribute("href")])
 
 driver.quit()
