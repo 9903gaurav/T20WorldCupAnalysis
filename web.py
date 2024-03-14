@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+import boto3
 
 import json
 
@@ -36,7 +37,17 @@ def scarpe_matchSummary(url, filename):
             if cols[6].find_elements(By.XPATH, ".//a"):
                 match_links.append([cols[0].text, cols[1].text, cols[6].text, cols[6].find_element(By.XPATH, ".//a").get_attribute("href")])
 
-    with open(filename, 'w') as f:
-        json.dump(table_data, f, indent=4)
+    # Convert table data to JSON string
+    json_data = json.dumps(table_data, indent=4)
+
+    # Convert JSON string to bytes
+    json_bytes = json_data.encode('utf-8')
+
+    # Create BytesIO object to represent the file
+    file_obj = BytesIO(json_bytes)
+
+    # Upload file to S3
+    s3 = boto3.client('s3')
+    s3.upload_fileobj(file_obj, "t20worldcupdatastaggedInfo", "t20staggeddata")
 
 scarpe_matchSummary(url, match_summary_path)
