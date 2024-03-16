@@ -168,21 +168,19 @@ def scrape_playerData(url):
                 tem = "//img[@alt and contains(concat(' ', normalize-space(@alt), ' '), \"{}\")]".format(name)
                 image = img.find_element(By.XPATH, tem).get_attribute("src")
         
-        print(name, country, image, battingStyle, bowlingStyle, playingRole)
         player.append(dict(zip(player_headers,[name, country, image, battingStyle, bowlingStyle, playingRole, description])))
         
         driver.quit()
-
 
 s3 = boto3.client('s3')
 
 print("Match Summary Started")
 scarpe_matchSummary(url)
 
-json_data_matchSummary = json.dumps(matchSummary, indent=4)
+json_data_matchSummary = json.dumps(matchSummary)
 json_bytes_matchSummary = json_data_matchSummary.encode('utf-8')
 file_obj_matchSummary = BytesIO(json_bytes_matchSummary)
-s3.upload_fileobj(file_obj_matchSummary, "t20worldcupdata", "staged/staged_match_summary.json")
+s3.upload_fileobj(file_obj_matchSummary, "t20worldcupdata", "staged/staged_matchSummary/staged_match_summary.json")
 
 print("Match Summary Completed")
 
@@ -191,25 +189,21 @@ print("Match Detail Started")
 for i, data in enumerate(match_links):
         scrape_match(data)
 
-print("Batting")
-print(batting)
-print("Bowling")
-print(bowling)
-json_data_batting = json.dumps(batting, indent=4)
+json_data_batting = json.dumps(batting)
 
 json_bytes_batting = json_data_batting.encode('utf-8')
 
 file_obj_batting = BytesIO(json_bytes_batting)
 
-s3.upload_fileobj(file_obj_batting, "t20worldcupdata", "staged/staged_match_batting_summary.json")
+s3.upload_fileobj(file_obj_batting, "t20worldcupdata", "staged/staged_batting/staged_match_batting_summary.json")
 
-json_data_bowling = json.dumps(bowling, indent=4)
+json_data_bowling = json.dumps(bowling)
 
 json_bytes_bowling = json_data_bowling.encode('utf-8')
 
 file_obj_bowling = BytesIO(json_bytes_bowling)
 
-s3.upload_fileobj(file_obj_bowling, "t20worldcupdata", "staged/staged_match_bowling_summary.json")
+s3.upload_fileobj(file_obj_bowling, "t20worldcupdata", "staged/staged_bowling/staged_match_bowling_summary.json")
 
 
 print("Match Detail Completed")
@@ -223,7 +217,7 @@ print("Player Data Completed")
 
 
 # Convert table data to JSON string
-json_data_player = json.dumps(player, indent=4)
+json_data_player = json.dumps(player)
 
 
 # Convert JSON string to bytes
@@ -234,4 +228,4 @@ json_bytes_player = json_data_player.encode('utf-8')
 file_obj_player = BytesIO(json_bytes_player)
 
 # Upload file to S3
-s3.upload_fileobj(file_obj_player, "t20worldcupdata", "staged/staged_players.json")
+s3.upload_fileobj(file_obj_player, "t20worldcupdata", "staged/staged_players/staged_players.json")
