@@ -96,3 +96,57 @@ Power BI
 
             
 
+
+i am creating a combined end-to-end project of data analytics & data engineering  
+
+Problem Statement :- you need to create a team from t20 world cup such that that team securing a minimum 180-run average and defending against 150 runs.
+Web scrape real time data from espn about t20 world cup. performed etl on the scrape data and created a dynamic power bi dashboard.
+tools used: 
+Python Selenium on EC2. 
+Stored staged scraped dataset on s3.
+Created first crawler in aws glue to convert json data to database format in glue catalogue
+created first etl job to extract data from glue catalogue table and convert to parquet format and applied some transform of datatypes and performed data cleaning
+created second crawler to fetch table schema from redshift
+created second etl job to load data into redshift
+created a connection between power bi and redshift
+
+def MyTransform (glueContext, dfc) -> DynamicFrameCollection:
+    from pyspark.sql.functions import col, when
+    # Convert the input DynamicFrame to a DataFrame
+    df = dfc.select(list(dfc.keys())[0]).toDF()
+    
+    # Create a temporary view for the DataFrame
+    df.createOrReplaceTempView("inputTable")
+    
+    # Apply the transformations using Spark SQL
+    df = df.withColumn("sr", when(col("sr") == "null", 0).otherwise(col("sr")))
+    df = df.withColumn("out", when(col("out") == "out", 1).otherwise(0))
+    df = df.withColumn("out", df["out"].cast("integer"))
+    df = df.withColumn("Boundary Runs", (4 * col("4s")) + (6 * col("6s")))
+    # Convert the transformed DataFrame to a DynamicFrame
+    dyf_transformed = DynamicFrame.fromDF(df, glueContext, "result0")
+    
+    # Return the transformed DynamicFrameCollection
+    return DynamicFrameCollection({"CustomTransform0": dyf_transformed}, glueContext)
+
+    df = dfc.select(list(dfc.keys())[0]).toDF()
+    df.createOrReplaceTempView("inputTable")
+    df = df.withColumn("over_parts", split(df["overs"], "\\."))
+    
+    df = df.withColumn("overs1", col("over_parts")[0] / col("over_parts")[1])
+    df = df.withColumn("overs2", when(col("over_parts")[1] != 0, col("over_parts")[1] ).otherwise(0))
+
+    df = df.withColumn("overs2", when(col("overs2") == "null", 0).otherwise(col("overs2")))
+
+    df = df.drop("over_parts")
+    df = df.drop("overs)
+
+    df = df.withColumn("Balls", (6 * col("overs1")) + (col("overs2")))
+
+    dyf_transformed = DynamicFrame.fromDF(df, glueContext, "result0")
+    
+    # Return the transformed DynamicFrameCollection
+    return DynamicFrameCollection({"CustomTransform0": dyf_transformed}, glueContext)
+
+
+
